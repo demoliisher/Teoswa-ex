@@ -1,0 +1,15 @@
+# dist/ is the deliverable and is committed on purpose — nothing here ignores it.
+
+# Scratch: raw GeoAtlas downloads, one-off scripts, logs
+tmp/
+*.log
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# Hosting CLIs (`vercel link` / `netlify link` write project ids here)
+.vercel/
+.netlify/

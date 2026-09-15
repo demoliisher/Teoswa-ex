@@ -1,0 +1,972 @@
+/* Taiwan-MOE calligraphy subsets (map_ex.web.fonts -> assets/fonts/*.woff2), loaded
+   by the page via relative urls; the PNG export re-injects them as base64 rules
+   at runtime (see app.js) because an exported SVG image may not fetch externals. */
+@font-face{
+    font-family: 'KaiTC';
+    src: url('../fonts/kai-tc.woff2') format('woff2');
+    font-display: swap;
+}
+@font-face{
+    font-family: 'LiTC';
+    src: url('../fonts/li-tc.woff2') format('woff2');
+    font-display: swap;
+}
+html{
+    font: 18px/40px 'LiTC','TW-MOE-Li','LiSu','STLiti','隶书','PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;
+    /* One wash for the whole page, corner to corner, reading the way the terrain
+       does on a satellite shot: the inland north-west (top-left) is a pale
+       green, the built-up plain in the middle bleaches to white, then the sea
+       takes over — pale near the shore, a shade deeper in the bottom-right
+       corner. It is painted on <html>, not inside the SVG, so it also covers
+       the letterbox around the map on both layouts — which is the only way a
+       wash can reach the screen's corners on the narrow layout, where the
+       viewBox is cropped tight around the counties. `to bottom right` (a corner
+       keyword, not an angle) pins 0% to the page's top-left and 100% to its
+       bottom-right whatever the window's aspect ratio is;
+       `background-attachment: fixed` anchors it to the viewport.
+       The exported PNG keeps the flat sea colour instead (app.js fills the
+       canvas with #A9CEE8) — the two are allowed to differ. */
+    background-color: #A9CEE8;
+    background-image: linear-gradient(to bottom right,
+        #C6E0BE 0%, #EAF3E6 22%, #FFFFFF 42%, #A9CEE8 72%, #8CB6DA 100%);
+    background-attachment: fixed;
+    color: #111;
+}
+body{
+    margin: 0;
+}
+html, body{
+    height: 100%;
+    overflow: hidden;
+}
+/* The map pane fills the page: the map is the only in-flow element (the title and
+   the control panel are overlays, see below), and the pane owns the gestures.
+   Narrow screens re-stack this column-wise (see the `data-narrow` block at the end
+   of this file). */
+body{
+    display: flex;
+    align-items: stretch;
+}
+/* the map itself: fills its pane and owns the gestures. Scoped to the injected
+   map svg — the page also carries small inline svgs (footer icon, drawer
+   chevron, legend marks) that must keep their own sizes. */
+body > svg{
+    display: block;
+    flex: 1 1 0;
+    min-width: 0;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    /* pointer-events on: the root receives drag/pinch gestures for the map view
+       (region paths re-enable their own pointer-events in the SVG stylesheet).
+       touch-action none keeps the browser from panning/zooming the page when a
+       gesture starts on the map — the view is ours to control. */
+    pointer-events: auto;
+    touch-action: none;
+    /* no text selection on the map: the county labels / title / legend are <text>
+       and a drag would otherwise drag a selection along (and on some platforms
+       start a native text drag that eats the pan gesture). */
+    user-select: none;
+    -webkit-user-select: none;
+}
+html.dragging body > svg,
+html.dragging body > svg #regions path{
+    cursor: grabbing;
+}
+a{
+    color: #111;
+    cursor: pointer;
+    text-decoration: none;
+}
+::selection{
+    background-color: #FF7E7E;
+}
+#level-popup{
+    /* `hidden` + `.show`, never display — the county menu floats in and out
+       exactly like the station card (#site-note), the two being the page's only
+       two choosers. It keeps its own boxy look: the black border is this
+       project's chrome, the card is the one that came later. */
+    position: absolute;
+    /* above the switch rail (z-index 1) — a county at the map's east edge gets
+       its popup clamped to the right, i.e. on top of the rail's column; still
+       below #output (z-index 2, later in DOM) and #map-error (3). */
+    z-index: 2;
+    background: #FFF;
+    width: 140px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 3px 6px 0 rgba(0,0,0,.1);
+    border: 4px solid #000;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .16s ease-out, transform .16s cubic-bezier(.2,.8,.2,1);
+}
+#level-popup.show{
+    opacity: 1;
+    transform: translateY(0);
+}
+#level-popup h2{
+    margin: 0;
+    font-family: 'KaiTC','TW-MOE-Std-Kai','DFKai-SB','KaiTi','STKaiti','楷体','PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;
+    font-weight: normal;
+    font-size: 26px;
+    line-height: 40px;
+    cursor: default;
+    padding: 4px 10px;
+}
+#level-popup a{
+    display: block;
+    line-height: 24px;
+    padding: 4px 10px;
+    cursor: pointer;
+}
+#level-popup a[data-level="5"]{background:#FF7E7E;}
+#level-popup a[data-level="4"]{background:#FFB57E;}
+#level-popup a[data-level="3"]{background:#FFE57E;}
+#level-popup a[data-level="2"]{background:#A8FFBE;}
+#level-popup a[data-level="1"]{background:#C7B0F2;}
+#level-popup a.current{
+    outline: 3px solid #000;
+    outline-offset: -3px;
+}
+.button{
+    background: #FFF;
+    box-shadow: 0 0 0 3px #111;
+    border-radius: 3px;
+}
+/* The switches live in the drawer's 開關 section: one per row, track first and
+   its label after it, on both layouts. */
+#layers, #rail-special{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 17px;
+    line-height: 26px;
+    transition: opacity 1s ease;
+}
+#layers[hidden]{
+    display: none;
+}
+/* the switch comes first and its label after it, on both layouts */
+#layers a.layer-switch, #rail-special a.layer-switch{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    color: #111;
+}
+#layers .layer-switch .track, #rail-special .layer-switch .track{
+    position: relative;
+    width: 52px;
+    height: 26px;
+    border-radius: 13px;
+    background: #d5d5d5;
+    box-shadow: 0 0 0 3px #111;
+    transition: background .18s ease;
+}
+#layers .layer-switch .knob, #rail-special .layer-switch .knob{
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #FFF;
+    box-shadow: 0 0 0 2px #111;
+    transition: left .18s ease;
+}
+#layers .layer-switch.on .track, #rail-special .layer-switch.on .track{
+    background: #7FC97F;
+}
+#layers .layer-switch.on .knob, #rail-special .layer-switch.on .knob{
+    left: 29px;
+}
+/* 功能: 重置 and 保存成圖片 sit side by side. GitHub is **not** part of the panel
+   any more: it is a page-level button pinned to the bottom-right corner (both
+   layouts), so it stays put whether the drawer is open or shut. */
+.drawer-tools{
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    font-size: 20px;
+    line-height: 30px;
+}
+.drawer-tools a{
+    /* tight padding: the buttons should read as buttons, not as bars */
+    padding: 2px 6px;
+}
+.drawer-tools a.button.off{
+    color: #999;
+    box-shadow: 0 0 0 3px #bbb;
+    cursor: default;
+}
+a.gh{
+    /* page-level, not panel-level: fixed to the viewport's bottom-right corner on
+       both layouts, above the drawer (z-index 4, and later in the DOM) so the
+       panel never swallows it — but still under the station card (5) */
+    position: fixed;
+    right: 14px;
+    bottom: calc(14px + env(safe-area-inset-bottom, 0));
+    z-index: 4;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    color: #111;
+}
+a.gh svg{
+    display: block;
+    width: 26px;
+    height: 26px;
+}
+#output{
+    display: flex;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: #FFF;
+    text-align: center;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+}
+#output[hidden]{
+    display: none;
+}
+#output img{
+    display: block;
+    width: min(92vw, 620px);
+    box-shadow: 0 5px 20px rgba(0,0,0,.1);
+}
+#output p{
+    margin: 8px 0;
+}
+#output .button{
+    padding: 8px 12px;
+    box-shadow: 0 0 0 2px #111;
+}
+#map-error{
+    position: fixed;
+    left: 50%;
+    top: 45%;
+    transform: translate(-50%, -50%);
+    z-index: 3;
+    max-width: min(72%, 560px);
+    background: #FFF;
+    border: 4px solid #000;
+    border-radius: 4px;
+    padding: 18px 22px;
+    line-height: 1.7;
+    text-align: center;
+}
+@media (max-width:800px), (max-height:800px){
+    html{
+        font-size: 14px;
+    }
+    .drawer-tools{
+        font-size: 16px;
+        line-height: 24px;
+    }
+    #layers, #rail-special{
+        font-size: 16px;
+        line-height: 24px;
+    }
+    #layers .layer-switch .track, #rail-special .layer-switch .track{
+        width: 44px;
+        height: 22px;
+        border-radius: 11px;
+        box-shadow: 0 0 0 2px #111;
+    }
+    #layers .layer-switch .knob, #rail-special .layer-switch .knob{
+        top: 3px;
+        left: 3px;
+        width: 16px;
+        height: 16px;
+        box-shadow: 0 0 0 2px #111;
+    }
+    #layers .layer-switch.on .knob, #rail-special .layer-switch.on .knob{
+        left: 25px;
+    }
+    .drawer-tools a.button.off{
+        box-shadow: 0 0 0 2px #bbb;
+    }
+    .drawer-tools a{
+        padding: 2px 5px;
+    }
+    a.gh svg{
+        width: 20px;
+        height: 20px;
+    }
+    .button{
+        box-shadow: 0 0 0 2px #111;
+    }
+    #level-popup{
+        width: 110px;
+        border-width: 2px;
+    }
+    #level-popup h2{
+        font-size: 18px;
+        line-height: 30px;
+        padding: 2px 8px;
+    }
+    #level-popup a{
+        font-size: 14px;
+        line-height: 18px;
+        padding: 2px 8px;
+    }
+}
+/* ---- narrow screens (phones): the map keeps the screen, the chrome stacks ----
+   Below 820px the page swaps the title baked into the SVG for HTML chrome — a top
+   bar and a collapsible legend drawer — so that text stops shrinking with the map,
+   and crops the drawn map into the free area (app.js sets data-narrow plus a fitted
+   viewBox). The in-SVG header is hidden here by an external rule only: it stays in
+   svg.innerHTML, so 「保存成圖片」 still renders the untouched desktop layout. */
+/* Chrome is HTML on every layout now: the title / subtitle / 分數 moved out of the
+   SVG. The burnt-in copy stays in svg.innerHTML — hidden here by an external rule
+   only, so 「保存成圖片」 still serialises it — while the page draws its own. The
+   legend is not in the SVG at all any more (it ships as assets/legend.svg). */
+#header{
+    display: none;
+}
+/* the title/score is a transparent sticker over the map (same treatment as the
+   narrow layout): no bar, no background, and it never eats a drag or a pinch,
+   so a zoomed map may slide underneath it */
+#topbar{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    background: none;
+    pointer-events: none;
+    /* the burnt-in header it replaces sat at x=60 with its title baseline at y=78 */
+    padding: calc(22px + env(safe-area-inset-top, 0)) 12px 0 60px;
+}
+#topbar .tb-main{
+    display: flex;
+    /* title over subtitle, like the burnt-in SVG header */
+    flex-direction: column;
+    /* stretch (not flex-start): the subtitle's line box then spans the title's
+       width, which is what `text-align-last: justify` spreads 「潮聚·向汕」
+       across — the same 分散对齐 the SVG header does with textLength. */
+    align-items: stretch;
+    gap: 0;
+    min-width: 0;
+}
+#topbar .tb-title{
+    font-size: 46px;
+    line-height: 50px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+#topbar .tb-sub{
+    font-size: 22px;
+    line-height: 26px;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: justify;
+    text-align-last: justify;
+    -moz-text-align-last: justify;
+}
+/* the score is the third line of the same stack, on both layouts */
+#topbar .tb-main #score-top{
+    font-size: 30px;
+    line-height: 34px;
+    font-weight: 700;
+    color: #111;
+    margin-top: 6px;
+}
+/* ---- legend drawer (wide screens): a right-hand rail, closed by default ----
+   The rail itself is `pointer-events: none`, so it can never block the map;
+   only the panel and its handle take clicks. The panel is an overlay, not a
+   sibling of the map, which is why opening it never moves the drawing. The handle
+   rides the right edge and stays visible while the panel is away — the only way
+   in. */
+#legend-drawer{
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    /* the panel is as wide as its content (see .drawer-body's max-content), and
+       app.js reads that width back into --drawer-w — the only thing the handle's
+       ride-out needs. No reserved lane, no canvas legend column: nothing here
+       answers to the map's zoom. */
+    width: auto;
+    z-index: 4;
+    pointer-events: none;
+}
+#legend-drawer .drawer-bar{
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: transform .22s cubic-bezier(.2,.8,.2,1);
+    display: flex;
+    /* the rail's label is written vertically (writing-mode below), which swaps
+       the flex axes: `row` here stacks label and arrow *downwards*, so the arrow
+       sits under the words — the same reading as the phone strip, where the
+       writing mode is horizontal and `column` does it */
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 34px;
+    padding: 10px 0;
+    font-size: 15px;
+    line-height: 1;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(0,0,0,.18);
+    border-right: 0;
+    border-radius: 8px 0 0 8px;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 1;
+}
+#legend-drawer .drawer-bar .chev{
+    display: block;
+    width: 13px;
+    height: 13px;
+    /* points at the panel: left while closed, right while open */
+    transform: rotate(90deg);
+    transition: transform .18s ease;
+}
+#legend-drawer.open .drawer-bar{
+    /* the handle rides out with the panel and comes to rest on its left edge,
+       so the two read as one drawer instead of a fixed tab */
+    transform: translateY(-50%) translateX(calc(-1 * var(--drawer-w, 232px)));
+}
+#legend-drawer.open .drawer-bar .chev{
+    transform: rotate(-90deg);
+}
+/* legend drawer: two columns hugging the middle — the level bands alone on the
+   left (right-aligned), 今屬他市 + the toggleable rows on the right (left-aligned) */
+#legend-drawer .drawer-body{
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    /* exactly the widest row plus one padding each side — the panel must fit
+       對外客運設施 and leave no slack on the right (the handle rides the panel's
+       *left* edge while open, so no lane is reserved for it here). */
+    width: max-content;
+    box-sizing: border-box;
+    /* Always reserve the scrollbar's lane. `max-content` on this box counts a
+       scrollbar that is currently showing, so a panel that grows taller than the
+       screen (unfold 鐵路特例) would measure 16px wider than the same panel with the
+       section folded — and the handle, which rides by that measurement, would stop
+       short of the panel's left edge. Stable gutter keeps the box's width the same
+       in both states. */
+    scrollbar-gutter: stable;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 14px 14px calc(14px + env(safe-area-inset-bottom, 0));
+    overflow: auto;
+    background: rgba(255,255,255,.94);
+    border-left: 1px solid rgba(0,0,0,.14);
+    transform: translateX(100%);
+    transition: transform .22s cubic-bezier(.2,.8,.2,1);
+    pointer-events: auto;
+}
+#legend-drawer.open .drawer-body{
+    transform: translateX(0);
+}
+/* 圖例 / 開關 / 鐵路特例 / 功能: the drawer's four sections */
+.dp-title{
+    /* stretch, not 100%: the panel's width is its content's, so a percentage would
+       collapse to the label and cut the rule under it short */
+    align-self: stretch;
+    margin: 16px 0 8px;
+    padding-bottom: 4px;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+    color: #111;
+    border-bottom: 1px solid rgba(0,0,0,.14);
+}
+/* 鐵路特例 is a **collapsible** section: the title stays, its six switches start
+   folded away. Expanded, the panel runs ~100px past a 1422×804 viewport (the
+   transit layer also adds three legend rows), which forces a scrollbar and breaks
+   both the "panel hugs its content" and the "legend centred" rules. */
+.dp-title.dp-toggle{
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    cursor: pointer;
+    user-select: none;
+}
+.dp-title.dp-toggle .chev{
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid currentColor;
+    transition: transform .18s ease;
+}
+.dp-title.dp-toggle.collapsed .chev{
+    transform: rotate(-90deg);
+}
+#rail-special.collapsed{
+    /* !important only to beat the inline display applyLayers() writes for the
+       transit layer: folding and layer visibility stay independent */
+    display: none !important;
+}
+.drawer-body > .dp-title:first-child{
+    margin-top: 0;
+}
+/* wide screens read the legend as a single column; phones keep the two-column
+   stack (see the data-narrow block). The content is centred inside the panel: each
+   column is as wide as its own widest row, so centring lines the two stacks up on
+   the panel's axis. */
+.drawer-legend{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    /* the panel is as wide as its widest *section* (功能's two buttons usually beat
+       the legend), so the legend has to span the panel before centring can bite */
+    align-self: stretch;
+}
+.lg-col{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    /* every row is centred inside its own column, so the three columns read as
+       centred stacks — the columns themselves are centred by .drawer-legend */
+    align-items: center;
+}
+.lg-col-level,
+.lg-col-site,
+.lg-col-rest{
+    align-items: center;
+}
+/* groups stack as one column; colour rows are bands hugging their label, symbol
+   rows keep the mark beside the label. */
+.lg-group{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 0;
+}
+/* the score bands butt together into one ribbon: the six county levels, and the
+   site's two tiers (出入 2 / 駛過 1) as their own tight stack — same treatment
+   the desktop legend gives them (gap 0 below the first mark row). */
+.lg-group[data-group="level"],
+.lg-group[data-group="sitelevel"]{
+    gap: 0;
+    /* both score stacks wear a thin black frame: the white 沒去過 / 沒經過 band must
+       keep an edge over the pale panel (the legend fragment frames them the same way,
+       so the exported PNG matches) */
+    outline: 1px solid #111;
+}
+.lg-item{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 15px;
+    line-height: 21px;
+    white-space: nowrap;
+}
+.lg-item.lg-band{
+    justify-content: center;
+    min-height: 25px;
+    min-width: 5em;          /* uniform band width (widest level label) */
+    padding: 1px 10px;
+    color: #111;
+}
+.lg-item.lg-item.lg-band-strong{
+    color: #FFF;
+}
+.lg-band-note{
+    outline: 1px dashed #555;
+    outline-offset: -1px;
+}
+.lg-mark{
+    display: block;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 auto;
+}
+/* the cloned symbols carry map-scale stroke widths (rail 0.7/1.1): keep them
+   from being scaled down to a hairline inside the small drawer mark */
+.lg-mark line,
+.lg-mark rect{
+    vector-effect: non-scaling-stroke;
+}
+html[data-narrow] body{
+    display: flex;
+    flex-direction: column;
+}
+html[data-narrow] body > svg{
+    order: 2;
+    /* the pane keeps the whole free height (a big gesture surface); the drawing
+       is pinned to its TOP by `preserveAspectRatio` (app.js sets xMidYMin in
+       narrow mode) so 饶北 sits right under the title/score and the spare height
+       falls above the legend drawer, keeping 三甲 off the drawer. */
+    flex: 1 1 auto;
+    height: auto;
+    min-height: 0;
+}
+/* On a phone the sticker sits tighter to the top edge and its type drops to
+   touch size; the wide-screen sizes are the base rules now. */
+html[data-narrow] #topbar{
+    padding: calc(2px + env(safe-area-inset-top, 0)) 12px 0;
+}
+html[data-narrow] #topbar .tb-title{
+    font-size: 22px;
+    line-height: 26px;
+}
+html[data-narrow] #topbar .tb-sub{
+    font-size: 13px;
+    line-height: 15px;
+}
+html[data-narrow] #topbar .tb-main #score-top{
+    font-size: 18px;
+    line-height: 22px;
+    margin-top: 2px;
+}
+/* Phones: one slab that slides up from the foot of the screen — the handle rides
+   on its *top* edge, exactly as the wide rail's handle rides out with its panel.
+   Closed, the slab is parked a handle's height below the screen edge so only the
+   handle shows, and that handle is the wide rail's bookmark turned a quarter
+   turn: a small tab on the screen's bottom edge, rounded at the top. Open, the
+   slab rises and the handle becomes its full-width top edge. The slab overlays
+   the map (nothing is re-fitted), so opening it never moves the map. */
+html[data-narrow] #legend-drawer{
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: auto;
+    display: flex;
+    flex-direction: column;
+    width: auto;
+    pointer-events: none;
+    background: none;
+    border-top: 0;
+    transform: translateY(calc(100% - 34px));
+    transition: transform .22s cubic-bezier(.2,.8,.2,1);
+}
+html[data-narrow] #legend-drawer.open{
+    transform: translateY(0);
+}
+html[data-narrow] #legend-drawer .drawer-bar{
+    position: static;
+    transform: none;
+    /* the arrow sits to the *right* of 控制面板 on a phone (the wide rail puts it
+       below, because its label runs downwards — the two point the same way) */
+    align-self: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: max-content;
+    min-width: 104px;
+    /* as tall as the wide rail's bookmark is wide (34px) */
+    height: 34px;
+    box-sizing: border-box;
+    padding: 0 14px;
+    line-height: 1;
+    writing-mode: horizontal-tb;
+    text-orientation: mixed;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(0,0,0,.18);
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    pointer-events: auto;
+    z-index: auto;
+}
+html[data-narrow] #legend-drawer.open .drawer-bar{
+    /* open, the handle is the very same bookmark — it is only lifted, never
+       stretched into a full-width bar (the wide rail keeps its shape too) */
+    transform: none;
+}
+html[data-narrow] #legend-drawer .drawer-bar .chev{
+    /* the panel rises from the foot of the screen, so a closed rail points up */
+    transform: rotate(180deg);
+}
+html[data-narrow] #legend-drawer.open .drawer-bar .chev{
+    transform: none;
+}
+html[data-narrow] #legend-drawer .drawer-body{
+    position: static;
+    width: auto;
+    display: flex;              /* the slab's transform hides it, never `display` */
+    transform: none;
+    padding: 10px 12px calc(10px + env(safe-area-inset-bottom, 0));
+    /* the slab holds every row on a phone — no inner scrolling; the cap is only a
+       guard for a viewport too short to show it all, and it leaves the handle's
+       34px clear */
+    max-height: calc(100vh - 34px);
+    background: rgba(255,255,255,.94);
+    border-top: 1px solid rgba(0,0,0,.14);
+    border-left: 0;
+    pointer-events: auto;
+}
+/* phones keep the legend in two columns (the drawer is a short strip there); the
+   switches and the three actions stack exactly as they do in the wide rail */
+html[data-narrow] .drawer-legend{
+    flex-direction: row;
+    /* three columns side by side — 区县制霸 / 站点制霸 / 今屬他市及余项 — the whole
+       group centred on the panel's axis. A shorter column centres itself vertically
+       against the tallest one, and a very narrow phone may still wrap them. */
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+}
+html[data-narrow] #layers .track,
+html[data-narrow] #rail-special .track{
+    cursor: pointer;
+}
+html[data-loading] .drawer-tools,
+html[data-loading] #topbar,
+html[data-loading] #legend-drawer,
+html[data-loading] #layers,
+html[data-loading] #rail-special,
+html[data-loading] a.gh{
+    pointer-events: none;
+    opacity: 0;
+}
+html[data-running]{
+    cursor: wait;
+}
+html[data-running] body{
+    pointer-events: none;
+}
+
+/* ---- station hover: radar lock + note card (desktop only) ----------------
+   The transport markers are pointer-events:none (so county clicks are never
+   swallowed); app.js resolves the hover in JS and pins these two HTML overlays
+   to the marker's *screen* point. Both live outside the SVG, so `svg.innerHTML`
+   — and therefore the exported PNG — never contains them. */
+#transport .site .mk{
+    /* the inner group exists so this CSS scale cannot clash with the outer
+       group's translate attribute; fill-box keeps it scaling about its centre.
+       No filter here: the tier colouring is a filter too (baked into the SVG
+       stylesheet), and the two must not fight over one property. */
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform .14s ease-out;
+}
+#transport .site.hot .mk{
+    transform: scale(1.18);
+}
+#site-lock{
+    position: absolute;
+    /* above the switch rail (1) and the level popup (2), below #output (2, later
+       in DOM) / #map-error (3): the exported-PNG overlay must stay on top. */
+    z-index: 3;
+    width: 60px;
+    height: 60px;
+    margin: -30px 0 0 -30px;   /* centre the box on the marker's screen point */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .12s ease-out;
+}
+#site-lock.show{
+    opacity: 1;
+}
+#site-lock .sl-ring{
+    position: absolute;
+    inset: 6px;
+    border: 2px solid #22D3EE;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(34,211,238,.6), inset 0 0 6px rgba(34,211,238,.35);
+}
+#site-lock.show .sl-ring{
+    animation: sl-pop .22s ease-out;
+}
+@keyframes sl-pop{
+    from{ transform: scale(1.45); opacity: .25; }
+    to{ transform: scale(1); opacity: 1; }
+}
+#site-lock .sl-sweep{
+    position: absolute;
+    inset: 6px;
+    border-radius: 50%;
+    /* The element spins clockwise (sl-spin -> rotate(360deg)) and a conic-gradient
+       paints clockwise from 0deg (12 o'clock), so the *faded* stop must come
+       later in the list than the bright one: the ramp from 66% up to 360% then
+       sits behind the leading edge, not ahead of it. Reversing the two stops
+       flips the tail to the wrong side of the sweep. */
+    background: conic-gradient(from 0deg, rgba(34,211,238,0) 66%, rgba(34,211,238,.5));
+    animation: sl-spin 1.6s linear infinite;
+}
+@keyframes sl-spin{
+    to{ transform: rotate(360deg); }
+}
+#site-lock .sl-br{
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #22D3EE;
+}
+#site-lock .sl-br.tl{ left: 0; top: 0; border-right: 0; border-bottom: 0; }
+#site-lock .sl-br.tr{ right: 0; top: 0; border-left: 0; border-bottom: 0; }
+#site-lock .sl-br.bl{ left: 0; bottom: 0; border-right: 0; border-top: 0; }
+#site-lock .sl-br.br{ right: 0; bottom: 0; border-left: 0; border-top: 0; }
+#site-note{
+    position: absolute;
+    /* above the drawer: on a phone the card parks at the foot of the screen and
+       would otherwise slip under the handle (and lose its clicks to it) */
+    z-index: 5;
+    /* hugs its content: the widest row + a little air, rather than a fixed box */
+    width: max-content;
+    min-width: 168px;
+    max-width: 280px;
+    background: #FFF;
+    border: 1px solid #C9D6E0;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(12,40,60,.22);
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity .16s ease-out, transform .16s cubic-bezier(.2,.8,.2,1);
+}
+#site-note.show{
+    opacity: 1;
+    transform: translateY(0);
+}
+/* title bar: cyber-cyan, the point's icons side by side and centred (a merged
+   point such as 揭陽潮汕國際機場 + 揭陽機場站 shows both) */
+#site-note .sn-head{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 34px;
+    background: linear-gradient(90deg, #0891B2, #06B6D4 55%, #22D3EE);
+}
+/* the icons carry their own drop shadow (svg.transport.icon_shadow, written
+   against the #ico-* defs) so the white outer ring keeps its edge on white too —
+   no filter here, or the card's icons would cast two shadows */
+#site-note .sn-body{
+    padding: 8px 12px 9px;
+    font-size: 15px;
+    line-height: 20px;
+    color: #10222B;
+}
+#site-note .sn-home{
+    font-size: 13px;
+    line-height: 18px;
+    color: #4A6572;
+}
+#site-note .sn-line{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 3px;
+}
+#site-note .sn-name{
+    font-weight: 700;
+}
+#site-note .sn-scale{
+    font-size: 13px;
+    color: #4A6572;
+}
+/* the chooser keeps the tiers side by side (each half the card width, at the
+   title bar's height) with the clearing 沒去過 row full-width underneath;
+   colours come from the legend's mark bands (inline), so they stay saturated
+   next to the county palette. */
+#site-note .sn-foot{
+    border-top: 1px solid #E3EAF0;
+}
+#site-note .sn-row{
+    display: flex;
+}
+#site-note .sn-btn{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* the tier rows are exactly as tall as one row of the county menu
+       (#level-popup a): 32px here, 22px in the ≤800px block below */
+    height: 32px;
+    box-sizing: border-box;   /* 沒去過 carries a 1px divider: keep all three equal */
+    font-size: 15px;
+    font-weight: 700;
+    color: #FFF;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+}
+#site-note .sn-btn.sn-mark{
+    flex: 1 1 50%;
+}
+#site-note .sn-btn.sn-none{
+    background: #FFF;
+    color: #5A6B76;
+    border-top: 1px solid #E3EAF0;
+}
+#site-note .sn-btn.current{
+    box-shadow: inset 0 0 0 3px rgba(0,0,0,.55);
+}
+/* ---- narrow: the station card is a bottom sheet -------------------------
+   A phone has no hover, so the card is opened by a *tap* on a station (resolved
+   in JS — the markers stay pointer-events:none so county taps are never
+   swallowed). Instead of a bubble glued to the marker (which at 390px would hug
+   an edge or hide under the drawer) it is a full-width sheet pinned just above
+   the legend drawer; app.js writes left/top/width. The radar reticle stays —
+   scaled down — because the sheet sits nowhere near its marker, so that ring is
+   the only thing tying the two together; the tiers grow to a real touch height. */
+html[data-narrow] #site-lock{
+    /* the desktop 60px box would dwarf the whole drawing next to ~6.6px markers */
+    width: 36px;
+    height: 36px;
+    margin: -18px 0 0 -18px;
+}
+html[data-narrow] #site-lock .sl-ring,
+html[data-narrow] #site-lock .sl-sweep{
+    inset: 5px;
+}
+html[data-narrow] #site-lock .sl-br{
+    width: 8px;
+    height: 8px;
+}
+html[data-narrow] #site-note{
+    width: auto;
+    min-width: 0;
+    max-width: none;
+    border-radius: 12px;
+    transform: translateY(14px);
+}
+html[data-narrow] #site-note.show{
+    transform: translateY(0);
+}
+html[data-narrow] #site-note .sn-head{
+    height: 36px;
+}
+html[data-narrow] #site-note .sn-body{
+    padding: 9px 14px 10px;
+    font-size: 16px;
+    line-height: 22px;
+}
+html[data-narrow] #site-note .sn-btn{
+    font-size: 16px;
+}
+/* The station card's tiers must be exactly as tall as one row of the county menu
+   (`#level-popup a`), so this repeats that menu's own small-screen breakpoint.
+   It has to sit *after* the #site-note rules above: same specificity, so source
+   order decides, and the base rule already set 32px. */
+@media (max-width:800px), (max-height:800px){
+    #site-note .sn-btn{
+        height: 22px;
+    }
+}

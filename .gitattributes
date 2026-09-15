@@ -1,0 +1,17 @@
+# Line endings: LF in the index and in the working tree, on every platform.
+# The pipeline reads and writes UTF-8 text; without this, core.autocrlf turned
+# every checkout into CRLF and produced spurious diffs plus a wall of warnings.
+* text=auto eol=lf
+
+# Never normalize or diff these as text.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.pdf binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.zip binary

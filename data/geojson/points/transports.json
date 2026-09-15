@@ -1,0 +1,338 @@
+{
+  "type": "FeatureCollection",
+  "name": "transports",
+  "properties": {
+    "description": "潮汕交通枢纽（民用运输机场/客运火车站），WGS84 经纬度"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "揭阳潮汕国际机场",
+        "type": "airport",
+        "city": "揭阳",
+        "county": "榕城",
+        "sites": [
+          {
+            "type": "airport",
+            "name": "揭阳潮汕国际机场"
+          },
+          {
+            "type": "station",
+            "name": "揭阳机场站",
+            "platforms": 2,
+            "tracks": 4,
+            "note": "地下站，空铁联运"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.51336526,
+          23.54649241
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "汕头站",
+        "type": "station",
+        "city": "汕头",
+        "county": "龙湖",
+        "sites": [
+          {
+            "type": "station",
+            "name": "汕头站",
+            "platforms": 11,
+            "tracks": 24,
+            "note": "粤东最大枢纽，分汕广场/梅汕场/城际场"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.75155364,
+          23.37464735
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "汕头南站",
+        "type": "station",
+        "city": "汕头",
+        "county": "濠江",
+        "sites": [
+          {
+            "type": "station",
+            "name": "汕头南站",
+            "platforms": 2,
+            "tracks": 4,
+            "note": "汕汕高铁车站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.67375941,
+          23.23006098
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "潮阳站",
+        "type": "station",
+        "city": "汕头",
+        "county": "潮阳",
+        "sites": [
+          {
+            "type": "station",
+            "name": "潮阳站",
+            "platforms": 2,
+            "tracks": 5,
+            "note": "厦深铁路中间站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.41833227,
+          23.38172817
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "潮南站",
+        "type": "station",
+        "city": "汕头",
+        "county": "潮南",
+        "sites": [
+          {
+            "type": "station",
+            "name": "潮南站",
+            "platforms": 2,
+            "tracks": 4,
+            "note": "汕汕高铁车站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.52838829,
+          23.13572106
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "潮汕站",
+        "type": "station",
+        "city": "潮州",
+        "county": "潮安",
+        "sites": [
+          {
+            "type": "station",
+            "name": "潮汕站",
+            "platforms": 4,
+            "tracks": 12,
+            "note": "厦深+梅汕交汇，一等站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.58771894,
+          23.54275718
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "潮安站",
+        "type": "station",
+        "city": "潮州",
+        "county": "潮安",
+        "sites": [
+          {
+            "type": "station",
+            "name": "潮安站",
+            "platforms": 2,
+            "tracks": 4,
+            "note": "2025 年 1 月开办客运"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.69058209,
+          23.47571028
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "饶平站",
+        "type": "station",
+        "city": "潮州",
+        "county": "饶平",
+        "sites": [
+          {
+            "type": "station",
+            "name": "饶平站",
+            "platforms": 2,
+            "tracks": 5,
+            "note": "厦深铁路车站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.92906837,
+          23.71336875
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "诏安站",
+        "type": "station",
+        "city": "漳州",
+        "county": "诏安",
+        "sites": [
+          {
+            "type": "station",
+            "name": "诏安站",
+            "platforms": 2,
+            "tracks": 5,
+            "note": "厦深铁路福建段最后一站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          117.09333582,
+          23.77345121
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "揭阳站",
+        "type": "station",
+        "city": "揭阳",
+        "county": "揭东",
+        "sites": [
+          {
+            "type": "station",
+            "name": "揭阳站",
+            "platforms": 2,
+            "tracks": 6,
+            "note": "梅汕铁路中间站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.32715492,
+          23.61069673
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "普宁站",
+        "type": "station",
+        "city": "揭阳",
+        "county": "普宁",
+        "sites": [
+          {
+            "type": "station",
+            "name": "普宁站",
+            "platforms": 2,
+            "tracks": 5,
+            "note": "厦深铁路车站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.1958268,
+          23.26838489
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "葵潭站",
+        "type": "station",
+        "city": "揭阳",
+        "county": "惠来",
+        "sites": [
+          {
+            "type": "station",
+            "name": "葵潭站",
+            "platforms": 2,
+            "tracks": 4,
+            "note": "厦深铁路车站，位于惠来县"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          115.99533243,
+          23.06780234
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "惠来站",
+        "type": "station",
+        "city": "揭阳",
+        "county": "惠来",
+        "sites": [
+          {
+            "type": "station",
+            "name": "惠来站",
+            "platforms": 2,
+            "tracks": 6,
+            "note": "汕汕高铁车站"
+          }
+        ]
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          116.28315489,
+          22.99466842
+        ]
+      }
+    }
+  ]
+}

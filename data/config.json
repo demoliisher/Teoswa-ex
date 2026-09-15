@@ -1,0 +1,137 @@
+{
+  "svg": {
+    "map": {
+      "file": "geojson/polygons/merged_teoswa.geojson",
+      "core": {
+        "fill": "#ffffff",
+        "stroke": "#333333",
+        "width": 0.5
+      },
+      "outer": {
+        "fill": "#d9d9d9",
+        "stroke": "#555555",
+        "width": 0.5
+      },
+      "labels": {
+        "榕城": {"size": 20, "nudge": [5, -3]},
+        "揭东": {"size": 35, "nudge": [15, 10]},
+        "揭西": {"size": 35, "nudge": [1, 8]},
+        "普宁": {"size": 35, "nudge": [-25, 10]},
+        "惠来": {"size": 35, "nudge": [10, 11]},
+        "金平": {"size": 22, "nudge": [4, 17]},
+        "龙湖": {"size": 18, "nudge": [8, 5], "stacked": true},
+        "澄海": {"size": 28, "nudge": [1, 8]},
+        "濠江": {"size": 22, "nudge": [5, 7]},
+        "潮阳": {"size": 35, "nudge": [10, 30]},
+        "潮南": {"size": 35, "nudge": [5, 15]},
+        "南澳": {"size": 20, "nudge": [-3, 4]},
+        "潮安": {"size": 35, "nudge": [-1, 11]},
+        "湘桥": {"size": 28, "nudge": [1, 7]},
+        "饶平": {"size": 35, "nudge": [-20, -25], "stacked": true},
+        "三甲": {"size": 18, "nudge": [10, 7]},
+        "诏安": {"size": 35, "nudge": [-25, -50], "stacked": true}
+      }
+    },
+    "lines": {
+      "inland_rivers": {
+        "file": "geojson/lines/inland_rivers.geojson",
+        "stroke": "#A9CEE8",
+        "width": 2.0
+      },
+      "railways": {
+        "file": "geojson/lines/railways.geojson",
+        "stroke": "#9aa3b0",
+        "width": 2.8,
+        "rail": 0.7,
+        "dash": [10, 10],
+        "lit_stroke": "#47C180",
+        "lit_glow": 2.4,
+        "special": [
+          { "label": "機場-揭陽", "a": "揭阳站", "b": "揭阳潮汕国际机场" },
+          { "label": "機場-潮汕", "a": "揭阳潮汕国际机场", "b": "潮汕站" },
+          { "label": "揭陽-豐順", "tail": "揭阳站" },
+          { "label": "惠來-陸豐", "tail": "惠来站" },
+          { "label": "詔安-雲霄", "tail": "诏安站" },
+          { "label": "葵潭-陸豐", "tail": "葵潭站" }
+        ]
+      }
+    },
+    "layers": {
+      "rivers": { "label": "內陸河流（Beta）", "on": false },
+      "transit": { "label": "對外客運設施", "on": false }
+    },
+    "leader_dist": 46,
+    "layout": {
+      "view_w": 1216,
+      "pad_l": 14,
+      "pad_r": 14,
+      "pad_t": 10,
+      "pad_b": 10,
+      "legend_gap": 40,
+      "target_h": 800
+    },
+    "levels": {
+      "colors": { "5": "#FF7E7E", "4": "#FFB57E", "3": "#FFE57E", "2": "#A8FFBE", "1": "#C7B0F2" },
+      "names": ["沒去過", "路過", "出差", "遊玩", "短居", "居住"]
+    },
+    "sites": {
+      "marks": [
+        {
+          "state": "in", "legend": "出入 3", "button": "出入", "points": 3,
+          "color": "#EE5367", "hue": 144, "saturate": 1.15,
+          "glow": { "color": "#FF3B4E", "blur": 3.5, "opacity": 0.9 }
+        },
+        {
+          "state": "hub", "legend": "換乘 2", "button": "換乘", "points": 2,
+          "color": "#B719FF", "hue": 34, "saturate": 5,
+          "glow": { "color": "#C13BFF", "blur": 3.5, "opacity": 0.9 },
+          "only": ["汕头站", "潮汕站", "揭阳潮汕国际机场"]
+        },
+        {
+          "state": "pass", "legend": "駛過 1", "button": "駛過", "points": 1,
+          "color": "#47C180", "hue": 279, "saturate": 1.1,
+          "glow": { "color": "#2BE07A", "blur": 3.5, "opacity": 0.9 }
+        },
+        {
+          "state": "none", "legend": "沒經過 0", "button": "沒經過", "points": 0,
+          "color": "#FFFFFF"
+        }
+      ]
+    },
+    "transport": {
+      "file": "geojson/points/transports.json",
+      "marker_radius": 8,
+      "legend_icon_radius": 10,
+      "icons": {
+        "airport": "icons/airport.svg",
+        "station": "icons/station.svg"
+      },
+      "icon_shadow": [
+        { "dy": 0, "blur": 3, "color": "#0B2231", "opacity": 0.3 },
+        { "dy": 6, "blur": 4, "color": "#0B2231", "opacity": 0.4 }
+      ],
+      "legend": [
+        { "icon": "airport", "text": "民用運輸機場" },
+        { "icon": "station", "text": "客運火車站" }
+      ]
+    },
+    "meta": {
+      "title": "潮汕制霸",
+      "subtitle": "潮聚·向汕",
+      "title_font_size": 46,
+      "legend_title": "圖例",
+      "legend_note_outer": "今屬他市",
+      "legend_note_river": "內陸河流",
+      "legend_note_rail": "客運鐵路"
+    }
+  },
+  "html": {
+    "page_title": "潮汕制霸 - 潮汕地區制霸標記生成器",
+    "description": "以區縣為單位標記「居住、短居、遊玩、出差、路過」，生成專屬潮汕制霸圖。",
+    "store_key": "teoswa-ex-levels",
+    "file_name": "潮汕制霸.png",
+    "footer": {
+      "repo_url": "https://github.com/demoliisher/Teoswa-ex"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+# Netlify: dist/ is committed and needs no build — just publish it as-is.
+# Import the repo at https://app.netlify.com/start and deploy.
+[build]
+  command = ""
+  publish = "dist"
