@@ -1,0 +1,14 @@
+# The repository root *is* the site: every file here is delivered. Nothing in this
+# repository may be ignored — the artifacts are committed on purpose (there is no
+# build step on the host).
+
+# Hosting CLIs (`vercel link` / `netlify link` write project ids here)
+.vercel/
+.netlify/
+
+# Editor / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+*.log

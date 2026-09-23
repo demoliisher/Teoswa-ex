@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1133 1008" data-canvas-w="1133" data-canvas-h="843" data-map-h="800">
+<style>
+svg{font-family:'LiTC','TW-MOE-Li','LiSu','STLiti','隶书','PingFang SC','Microsoft YaHei','Noto Sans CJK SC',sans-serif;}
+.legend-title{font-size:26px;font-weight:700;fill:#111;}
+text.legend-row{font-size:22px;fill:#111;}
+text.legend-band{font-size:22px;fill:#111;}
+text.legend-band.note{font-size:18px;}
+text.legend-band.mark{font-size:22px;fill:#FFF;}
+text.legend-band.mark.dark{fill:#111;}
+text.legend-credit{font-size:15px;fill:#666;font-family:'Segoe UI','Arial','Helvetica',sans-serif;}
+</style>
+<g id="legend">
+<text class="legend-title" x="947.649" y="197.72">圖例</text>
+<g id="legend-rows" transform="translate(947.649 229.72)">
+<rect class="lg-frame" x="0" y="0" width="125.1" height="276" fill="none" stroke="#111" stroke-width="1"/>
+<g class="lg-row" data-lg-group="level" transform="translate(0 0)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#FF7E7E"/>
+<text class="legend-band" x="62.5" y="31" text-anchor="middle">居住 5</text>
+</g>
+<g class="lg-row" data-lg-group="level" transform="translate(0 46)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#FFB57E"/>
+<text class="legend-band" x="62.5" y="31" text-anchor="middle">短居 4</text>
+</g>
+<g class="lg-row" data-lg-group="level" transform="translate(0 92)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#FFE57E"/>
+<text class="legend-band" x="62.5" y="31" text-anchor="middle">遊玩 3</text>
+</g>
+<g class="lg-row" data-lg-group="level" transform="translate(0 138)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#A8FFBE"/>
+<text class="legend-band" x="62.5" y="31" text-anchor="middle">出差 2</text>
+</g>
+<g class="lg-row" data-lg-group="level" transform="translate(0 184)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#C7B0F2"/>
+<text class="legend-band" x="62.5" y="31" text-anchor="middle">路過 1</text>
+</g>
+<g class="lg-row" data-lg-group="level" transform="translate(0 230)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#ffffff"/>
+<text class="legend-band" x="62.5" y="31" text-anchor="middle">沒去過 0</text>
+</g>
+<rect class="lg-frame" x="0" y="288" width="125.1" height="184" fill="none" stroke="#111" stroke-width="1"/>
+<g class="lg-row" data-lg-group="sitelevel" data-site-state="in" data-site-points="3" data-site-btn="出入" transform="translate(0 288)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#EE5367"/>
+<text class="legend-band mark" x="62.5" y="31" text-anchor="middle">出入 3</text>
+</g>
+<g class="lg-row" data-lg-group="sitelevel" data-site-state="hub" data-site-points="2" data-site-btn="換乘" data-site-only="汕头站|潮汕站|揭阳潮汕国际机场" transform="translate(0 334)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#B719FF"/>
+<text class="legend-band mark" x="62.5" y="31" text-anchor="middle">換乘 2</text>
+</g>
+<g class="lg-row" data-lg-group="sitelevel" data-site-state="pass" data-site-points="1" data-site-btn="駛過" transform="translate(0 380)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#47C180"/>
+<text class="legend-band mark" x="62.5" y="31" text-anchor="middle">駛過 1</text>
+</g>
+<g class="lg-row" data-lg-group="sitelevel" data-site-state="none" data-site-points="0" data-site-btn="沒經過" transform="translate(0 426)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#FFFFFF"/>
+<text class="legend-band mark dark" x="62.5" y="31" text-anchor="middle">沒經過 0</text>
+</g>
+<g class="lg-row" data-lg-group="note" transform="translate(0 484)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<rect class="lg-band" x="0" y="0" width="125.1" height="46" fill="#d9d9d9" stroke="#555555" stroke-width="1.5" stroke-dasharray="7 5"/>
+<text class="legend-band note" x="62.5" y="29" text-anchor="middle">今屬他市</text>
+</g>
+<g class="lg-row" data-layer="rivers" data-lg-group="rivers" transform="translate(0 536)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<line x1="0" y1="25.3" x2="46" y2="25.3" stroke="#A9CEE8" stroke-width="2" stroke-linecap="butt"/>
+<text class="legend-row" x="60" y="34">內陸河流</text>
+</g>
+<g class="lg-row" data-layer="transit" data-lg-group="transit" transform="translate(0 588)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<line x1="0" y1="26.35" x2="46" y2="26.35" stroke="#9aa3b0" stroke-width="0.7" stroke-linecap="butt"/>
+<line x1="0" y1="24.25" x2="46" y2="24.25" stroke="#9aa3b0" stroke-width="0.7" stroke-linecap="butt"/>
+<line x1="0" y1="25.3" x2="46" y2="25.3" stroke="#9aa3b0" stroke-width="1.65" stroke-dasharray="10 10" stroke-linecap="butt"/>
+<text class="legend-row" x="60" y="34">客運鐵路</text>
+</g>
+<g class="lg-row" data-layer="transit" data-lg-group="transit" transform="translate(0 640)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<use href="#ico-airport" transform="translate(23.0 23.0) scale(0.200000) translate(-50 -50)"/>
+<text class="legend-row" x="60" y="34">民用運輸機場</text>
+</g>
+<g class="lg-row" data-layer="transit" data-lg-group="transit" transform="translate(0 692)">
+<rect x="0" y="0" width="46" height="46" fill="none" stroke="none"/>
+<use href="#ico-station" transform="translate(23.0 23.0) scale(0.200000) translate(-50 -50)"/>
+<text class="legend-row" x="60" y="34">客運火車站</text>
+</g>
+</g>
+<text class="legend-credit" x="60" y="825.25">Teoswa-ex © 2026 demoliisher</text>
+</g>
+</svg>

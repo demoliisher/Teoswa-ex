@@ -1,0 +1,18 @@
+# Netlify: this repository root *is* the site — no build step, publish it as-is.
+# Import the repo at https://app.netlify.com/start and deploy.
+[build]
+  command = ""
+  publish = "."
+
+# The two drawings moved into assets/svg/ (they are page assets like the css/js/data
+# beside them). Netlify served them at the old paths, so old links are forwarded.
+# Delete these two once the old URLs are stale.
+[[redirects]]
+  from = "/map.svg"
+  to = "/assets/svg/map.svg"
+  status = 301
+
+[[redirects]]
+  from = "/assets/legend.svg"
+  to = "/assets/svg/legend.svg"
+  status = 301
