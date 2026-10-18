@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "echo no-build",
+  "installCommand": "echo no-install",
+  "outputDirectory": ".",
+  "redirects": [
+    { "source": "/map.svg", "destination": "/assets/svg/map.svg", "permanent": true },
+    { "source": "/assets/legend.svg", "destination": "/assets/svg/legend.svg", "permanent": true }
+  ]
+}

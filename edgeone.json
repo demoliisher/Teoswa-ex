@@ -1,0 +1,5 @@
+{
+  "installCommand": "echo no-install",
+  "buildCommand": "echo no-build",
+  "outputDirectory": "."
+}
